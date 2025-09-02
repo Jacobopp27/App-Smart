@@ -53,7 +53,14 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Register API routes FIRST, before any middleware that might interfere
+  // Register API routes with explicit middleware to bypass Vite
+  app.use('/api', (req, res, next) => {
+    // Force API routes to be handled by Express, not Vite
+    res.setHeader('Content-Type', 'application/json');
+    next();
+  });
+  
+  // Register routes
   const server = await registerRoutes(app);
 
   // Error handler for API routes
