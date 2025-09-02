@@ -62,6 +62,19 @@ const asyncHandler = (fn: (req: Request, res: Response, next: Function) => Promi
 export async function registerRoutes(app: Express): Promise<Server> {
   
   /**
+   * GET /api/health
+   * Simple health check endpoint to test connectivity
+   */
+  app.get('/api/health', (req: Request, res: Response) => {
+    console.log('🟢 Health check requested');
+    res.json({ 
+      status: 'OK', 
+      timestamp: new Date().toISOString(),
+      message: 'Server is running'
+    });
+  });
+
+  /**
    * POST /api/auth/login
    * Authenticates user credentials and returns JWT token
    * 
