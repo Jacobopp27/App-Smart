@@ -14,8 +14,8 @@
  * 4. Provides feedback on the operation
  */
 
-import { db } from '../server/db.js';
-import { users } from '../shared/schema.js';
+import { db } from '../server/db.ts';
+import { users } from '../shared/schema.ts';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 
@@ -128,7 +128,7 @@ async function seedSampleOperations(adminUserId) {
     console.log('📊 Creating sample operations...');
     
     // Import operations schema
-    const { operations } = await import('../shared/schema.js');
+    const { operations } = await import('../shared/schema.ts');
     
     // Sample operations data for demonstration
     const sampleOperations = [

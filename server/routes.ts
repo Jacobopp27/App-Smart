@@ -48,7 +48,7 @@ const authMiddleware = async (req: Request, res: Response, next: Function) => {
  * Error handling middleware for async routes
  * Wraps async route handlers to catch and forward errors to Express error handler
  */
-const asyncHandler = (fn: Function) => (req: Request, res: Response, next: Function) => {
+const asyncHandler = (fn: (req: Request, res: Response, next: Function) => Promise<any>) => (req: Request, res: Response, next: Function) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 

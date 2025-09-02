@@ -18,7 +18,7 @@ export default function Toast() {
    * @param {string} variant - Toast variant type
    * @returns {JSX.Element} Icon component
    */
-  const getToastIcon = (variant: string = "default") => {
+  const getToastIcon = (variant: string | null | undefined = "default") => {
     switch (variant) {
       case "destructive":
         return <XCircle className="h-5 w-5" />;
@@ -36,7 +36,7 @@ export default function Toast() {
    * @param {string} variant - Toast variant type
    * @returns {string} CSS classes
    */
-  const getToastStyling = (variant: string = "default") => {
+  const getToastStyling = (variant: string | null | undefined = "default") => {
     const baseClasses = "fixed top-4 right-4 z-50 max-w-sm rounded-lg shadow-lg border p-4 transition-all duration-300";
     
     switch (variant) {
