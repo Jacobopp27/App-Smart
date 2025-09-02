@@ -284,16 +284,29 @@ export default function Dashboard() {
                     data-testid="input-amount"
                   />
 
-                  {/* Currency Input */}
-                  <FormField
-                    label="Currency"
-                    value={currency}
-                    onChange={setCurrency}
-                    placeholder="e.g., USD, EUR, BTC"
-                    maxLength={10}
-                    required
-                    data-testid="input-currency"
-                  />
+                  {/* Currency Selection */}
+                  <div className="space-y-2">
+                    <Label htmlFor="currency">Currency</Label>
+                    <Select value={currency} onValueChange={setCurrency}>
+                      <SelectTrigger data-testid="select-currency">
+                        <SelectValue placeholder="Select currency..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="USD">USD - US Dollar</SelectItem>
+                        <SelectItem value="EUR">EUR - Euro</SelectItem>
+                        <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                        <SelectItem value="JPY">JPY - Japanese Yen</SelectItem>
+                        <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
+                        <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
+                        <SelectItem value="CHF">CHF - Swiss Franc</SelectItem>
+                        <SelectItem value="CNY">CNY - Chinese Yuan</SelectItem>
+                        <SelectItem value="BTC">BTC - Bitcoin</SelectItem>
+                        <SelectItem value="ETH">ETH - Ethereum</SelectItem>
+                        <SelectItem value="ADA">ADA - Cardano</SelectItem>
+                        <SelectItem value="SOL">SOL - Solana</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
                   {/* Submit Button */}
                   <Button
@@ -388,9 +401,18 @@ export default function Dashboard() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all-currencies">All Currencies</SelectItem>
-                        <SelectItem value="USD">USD</SelectItem>
-                        <SelectItem value="EUR">EUR</SelectItem>
-                        <SelectItem value="BTC">BTC</SelectItem>
+                        <SelectItem value="USD">USD - US Dollar</SelectItem>
+                        <SelectItem value="EUR">EUR - Euro</SelectItem>
+                        <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                        <SelectItem value="JPY">JPY - Japanese Yen</SelectItem>
+                        <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
+                        <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
+                        <SelectItem value="CHF">CHF - Swiss Franc</SelectItem>
+                        <SelectItem value="CNY">CNY - Chinese Yuan</SelectItem>
+                        <SelectItem value="BTC">BTC - Bitcoin</SelectItem>
+                        <SelectItem value="ETH">ETH - Ethereum</SelectItem>
+                        <SelectItem value="ADA">ADA - Cardano</SelectItem>
+                        <SelectItem value="SOL">SOL - Solana</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
