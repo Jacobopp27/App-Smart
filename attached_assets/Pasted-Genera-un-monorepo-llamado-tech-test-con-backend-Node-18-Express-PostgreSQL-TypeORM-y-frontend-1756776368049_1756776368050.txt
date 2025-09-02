@@ -1,0 +1,141 @@
+Genera un monorepo llamado tech-test con backend (Node 18+, Express, PostgreSQL, TypeORM) y frontend (React + Vite). Necesito algo funcional ya, bien ordenado, con comentarios en todo el código que expliquen qué hace y por qué.
+
+Reglas
+
+Nada de secretos reales. Incluye .env.example y .gitignore.
+
+Comenta TODO el código (líneas clave y bloques) explicando:
+
+Qué hace esa función/middleware.
+
+Por qué se usa ese patrón (ej. transacción, Context API, etc.).
+
+Cómo se usaría en la práctica.
+
+Usa JSDoc en services y controllers.
+
+Scripts npm listos para correr.
+
+Estructura limpia por capas en backend (controller → service → repository).
+
+JavaScript, no TypeScript.
+
+Estructura
+tech-test/
+  package.json               # workspaces: backend, frontend
+  .gitignore
+  README.md                  # pasos de uso rápidos (5–8 pasos)
+
+  backend/
+    package.json
+    .env.example
+    docker-compose.yml       # Postgres local (comentado)
+    scripts/seed.js
+    src/
+      app.js
+      server.js
+      config/data-source.js
+      entities/{User.js, Operation.js}
+      repositories/index.js
+      validators/operation.validator.js
+      services/{authService.js, operationService.js}
+      controllers/{authController.js, operationController.js}
+      middleware/{auth.js, error.js, notFound.js}
+      routes/{index.js, auth.js, operations.js}
+      docs/openapi.yaml      # Swagger básico
+  frontend/
+    package.json
+    vite.config.js
+    index.html
+    src/
+      main.jsx
+      contexts/{AuthContext.jsx}
+      routes/{ProtectedRoute.jsx}
+      pages/{LoginPage.jsx, Dashboard.jsx}
+      components/{FormField.jsx, DataTable.jsx, Toast.jsx}
+      utils/{apiClient.js}
+      styles/base.css
+
+Backend (funcional + extras mínimos)
+
+Stack: express, helmet, cors, dotenv, express-async-errors, jsonwebtoken, bcryptjs, pg, typeorm, swagger-ui-express, yup (o validador simple).
+
+Auth
+
+POST /auth/login
+Body: { email, password }
+Verifica con bcrypt, retorna 200 { token, user:{id,email,role} }.
+JWT con sub, role, exp (usa JWT_SECRET).
+
+Código comentado explicando qué es JWT, cómo funciona el middleware, y por qué bcrypt.
+
+Operaciones
+
+Entidad Operation: id uuid, type ('BUY'|'SELL'), amount decimal>0, currency string [3..10], createdAt, relación con User.
+
+POST /operations (protegido con Bearer):
+Valida body, ejecuta transacción TypeORM con queryRunner → explica con comentarios cómo se hace el rollback si falla.
+201 con { id, type, amount, currency, createdAt }.
+Manejo de errores comentado (400/401/500).
+
+GET /operations (extra): listado con paginación y filtros básicos.
+Código comentado explicando cómo se construyen queries dinámicas.
+
+Extras
+
+Swagger en /docs documentando login y operaciones (con ejemplos).
+
+Middlewares con comentarios (auth, error handler, notFound).
+
+Seed de usuario admin (explica cómo usarlo).
+
+.env.example con comentarios de cada variable.
+
+docker-compose.yml con comentarios de cómo levantar Postgres localmente.
+
+Frontend (simple pero bonito)
+
+Stack: React + Vite, React Router, Context API.
+
+AuthContext.jsx: gestiona token y user en localStorage.
+Comentarios explicando cómo funciona la persistencia de sesión.
+
+LoginPage.jsx: formulario que llama /auth/login.
+Código comentado para mostrar errores, manejar loading, y explicar el flujo.
+
+Dashboard.jsx:
+
+Formulario para crear operación (POST /operations).
+
+Tabla simple (DataTable) que muestra operaciones con paginación y filtros (GET /operations).
+
+Toast.jsx para mensajes de éxito/error.
+Todo comentado explicando cómo se conecta con el backend y por qué se usa Context.
+
+apiClient.js: wrapper de fetch con token Bearer.
+Comentarios explicando el patrón interceptor.
+
+styles/base.css: layout limpio y responsivo, con comentarios.
+
+Workspaces raíz
+
+workspaces: ["backend", "frontend"]
+
+"postinstall": "cd backend && npm i && cd ../frontend && npm i"
+
+Scripts raíz:
+
+dev:backend, dev:frontend
+
+README (breve y útil)
+
+Requisitos.
+
+Setup rápido en 5–8 pasos (instalar deps, seed, levantar backend y frontend).
+
+Ejemplo de login (admin@app.com
+ / admin123).
+
+Cómo abrir Swagger /docs.
+
+Flujo de UI: login → dashboard → crear operación → ver en tabla.
