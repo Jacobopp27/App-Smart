@@ -63,14 +63,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   /**
    * GET /api/health
-   * Fast health check endpoint for deployment monitoring
-   * Returns immediately without database operations for fastest response
+   * Immediate health check endpoint - no operations whatsoever
    */
   app.get('/api/health', (req: Request, res: Response) => {
-    res.json({
-      status: 'OK',
-      message: 'Server is running'
-    });
+    res.json({ status: 'OK' });
   });
 
   /**

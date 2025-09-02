@@ -22,12 +22,14 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Immediate health check endpoint for deployment monitoring - no async operations
+// Ultra-fast health check endpoint for deployment - absolutely no operations
 app.get('/', (req: Request, res: Response) => {
-  res.status(200).json({ 
-    status: 'OK', 
-    message: 'TechTest Operations Management System'
-  });
+  res.status(200).json({ status: 'OK' });
+});
+
+// Separate simple health endpoint that responds immediately
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).json({ status: 'OK' });
 });
 
 app.use((req, res, next) => {
@@ -102,17 +104,6 @@ app.use('/api', (req, res, next) => {
     console.log(`🚀 Server ready at http://0.0.0.0:${port}`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
     
-    // Initialize database AFTER server is listening (completely non-blocking)
-    if (process.env.NODE_ENV === 'production') {
-      // Start database initialization in background after server is ready
-      import('./initdb').then(({ initializeDatabase }) => {
-        initializeDatabase().catch((error) => {
-          console.error('Database initialization failed:', error);
-          // Server continues to run, database operations will handle connection issues
-        });
-      }).catch(() => {
-        console.log('Database initialization module not available in production build');
-      });
-    }
+    // Database initialization completely removed from startup - will be lazy-loaded only when needed
   });
 })();
