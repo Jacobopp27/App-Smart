@@ -7,7 +7,6 @@ import { AuthProvider } from "./contexts/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
-import NotFound from "@/pages/not-found";
 
 /**
  * Main Router component handling application navigation
@@ -26,8 +25,12 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
-      {/* Fallback to 404 page for unknown routes */}
-      <Route component={NotFound} />
+      {/* Fallback for unknown routes - redirect to dashboard */}
+      <Route>
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      </Route>
     </Switch>
   );
 }
