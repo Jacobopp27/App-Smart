@@ -18,9 +18,12 @@ export const operations = pgTable("operations", {
   type: text("type", { enum: ["BUY", "SELL"] }).notNull(),
   amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
   currency: varchar("currency", { length: 10 }).notNull(),
-  userId: uuid("user_id").notNull(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => ({
+  // Database constraint: amount must be positive
+  positiveAmount: sql`CHECK (${table.amount} > 0)`,
+}));
 
 // Define relations between tables
 export const usersRelations = relations(users, ({ many }) => ({

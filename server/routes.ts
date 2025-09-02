@@ -1,6 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { operationService, ValidationError, BusinessRuleError, TransactionError } from "./services/operationService";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { insertOperationSchema, loginSchema } from "@shared/schema";
@@ -143,9 +144,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate operation data using Zod schema
       const operationData = insertOperationSchema.parse(req.body);
       
-      // Create operation in database with authenticated user ID
-      // This creates a relationship between the operation and the user
-      const operation = await storage.createOperation({
+      // Create operation using service layer with transaction handling
+      // This ensures proper business rules and database consistency
+      const operation = await operationService.createOperation({
         ...operationData,
         userId: (req as any).user.id
       });
@@ -154,12 +155,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(operation);
 
     } catch (error) {
+      // Handle different types of errors with appropriate status codes
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
           message: 'Validation error', 
           errors: error.errors 
         });
       }
+      
+      if (error instanceof ValidationError) {
+        return res.status(400).json({ 
+          message: 'Validation failed', 
+          details: error.message 
+        });
+      }
+      
+      if (error instanceof BusinessRuleError) {
+        return res.status(422).json({ 
+          message: 'Business rule violation', 
+          details: error.message 
+        });
+      }
+      
+      if (error instanceof TransactionError) {
+        return res.status(500).json({ 
+          message: 'Transaction failed', 
+          details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+        });
+      }
+      
       throw error;
     }
   }));
@@ -188,8 +212,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).json({ message: 'Invalid pagination parameters' });
     }
 
-    // Fetch operations with filters applied
-    const result = await storage.getOperations({
+    // Fetch operations using service layer
+    const result = await operationService.getOperations({
       userId: (req as any).user.id, // Only return operations for authenticated user
       type: type as string,
       currency: currency as string,
@@ -214,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Returns: { total: number, buys: number, sells: number }
    */
   app.get('/api/operations/stats', authMiddleware, asyncHandler(async (req: Request, res: Response) => {
-    const stats = await storage.getOperationStats((req as any).user.id);
+    const stats = await operationService.getOperationStats((req as any).user.id);
     res.json(stats);
   }));
 
