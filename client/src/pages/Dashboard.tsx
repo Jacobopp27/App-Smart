@@ -23,9 +23,9 @@ export default function Dashboard() {
   const queryClient = useQueryClient();
 
   // Form state for creating new operations
-  const [operationType, setOperationType] = useState("");
+  const [operationType, setOperationType] = useState<string | undefined>(undefined);
   const [amount, setAmount] = useState("");
-  const [currency, setCurrency] = useState("");
+  const [currency, setCurrency] = useState<string | undefined>(undefined);
 
   // Filters for operations table
   const [filters, setFilters] = useState({
@@ -97,9 +97,9 @@ export default function Dashboard() {
       queryClient.invalidateQueries({ queryKey: ['/api/operations/stats'] });
       
       // Reset form
-      setOperationType("");
+      setOperationType(undefined);
       setAmount("");
-      setCurrency("");
+      setCurrency(undefined);
       
       // Show success notification
       toast({
@@ -109,9 +109,17 @@ export default function Dashboard() {
     },
     onError: (error: any) => {
       console.error('Create operation error:', error);
+      // Extract meaningful error message from the error object
+      let errorMessage = "Failed to create operation. Please try again.";
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to create operation. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     },
