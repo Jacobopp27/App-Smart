@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "./contexts/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
+import SetupPage from "./pages/SetupPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "@/pages/not-found";
 
@@ -16,6 +17,9 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
+      {/* Setup route - Initial admin user creation */}
+      <Route path="/setup" component={SetupPage} />
+      
       {/* Public route - Login page accessible to all users */}
       <Route path="/login" component={LoginPage} />
       

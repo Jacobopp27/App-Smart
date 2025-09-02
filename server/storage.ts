@@ -11,6 +11,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  getAllUsers(): Promise<User[]>;
   
   // Operation operations
   createOperation(operation: InsertOperation & { userId: string }): Promise<Operation>;
@@ -66,6 +67,15 @@ export class DatabaseStorage implements IStorage {
       .values(insertUser)
       .returning();
     return user;
+  }
+
+  /**
+   * Retrieves all users from the database
+   * @returns {Promise<User[]>} Array of all users
+   */
+  async getAllUsers(): Promise<User[]> {
+    const allUsers = await db.select().from(users);
+    return allUsers;
   }
 
   /**

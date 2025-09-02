@@ -75,6 +75,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   /**
+   * POST /api/setup/admin
+   * Creates the first admin user for initial setup
+   */
+  app.post('/api/setup/admin', asyncHandler(async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required' });
+      }
+
+      // Check if any users exist
+      const existingUsers = await storage.getAllUsers();
+      if (existingUsers.length > 0) {
+        return res.status(400).json({ message: 'Setup already completed' });
+      }
+
+      // Create admin user
+      const hashedPassword = await bcrypt.hash(password, 12);
+      const newUser = await storage.createUser({
+        email,
+        password: hashedPassword,
+        role: 'admin'
+      });
+
+      console.log('✅ Admin user created via setup:', newUser.email);
+      
+      res.status(201).json({ 
+        message: 'Admin user created successfully',
+        user: { id: newUser.id, email: newUser.email, role: newUser.role }
+      });
+    } catch (error) {
+      console.error('❌ Setup failed:', error);
+      res.status(500).json({ message: 'Setup failed' });
+    }
+  }));
+
+  /**
    * POST /api/auth/login
    * Authenticates user credentials and returns JWT token
    * 
