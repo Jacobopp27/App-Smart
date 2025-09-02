@@ -60,6 +60,12 @@ app.use((req, res, next) => {
     next();
   });
   
+  // Initialize database (for production)
+  if (process.env.NODE_ENV !== 'development') {
+    const { initializeDatabase } = await import('./initdb');
+    await initializeDatabase();
+  }
+  
   // Register routes
   const server = await registerRoutes(app);
 
