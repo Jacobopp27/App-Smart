@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { operationService, ValidationError, BusinessRuleError, TransactionError } from "./services/operationService";
@@ -15,7 +15,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-producti
  * Validates JWT tokens and attaches user information to request object
  * This middleware explains the Bearer token pattern used in REST APIs
  */
-const authMiddleware = async (req: Request, res: Response, next: Function) => {
+const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Extract Bearer token from Authorization header
     const authHeader = req.headers.authorization;
@@ -49,7 +49,7 @@ const authMiddleware = async (req: Request, res: Response, next: Function) => {
  * Error handling middleware for async routes
  * Wraps async route handlers to catch and forward errors to Express error handler
  */
-const asyncHandler = (fn: (req: Request, res: Response, next: Function) => Promise<any>) => (req: Request, res: Response, next: Function) => {
+const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) => (req: Request, res: Response, next: NextFunction) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 

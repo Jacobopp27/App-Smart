@@ -14,11 +14,8 @@ export default function SetupPage() {
 
   const createAdminMutation = useMutation({
     mutationFn: async (data: { email: string; password: string }) => {
-      return apiRequest('/api/setup/admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
+      const response = await apiRequest('POST', '/api/setup/admin', data);
+      return response.json();
     },
     onSuccess: () => {
       toast({
