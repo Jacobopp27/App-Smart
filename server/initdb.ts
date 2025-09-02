@@ -31,19 +31,19 @@ export async function initializeDatabase() {
         {
           userId: adminUser.id,
           type: 'BUY' as const,
-          amount: 1000.00,
+          amount: '1000.00',
           currency: 'USD'
         },
         {
           userId: adminUser.id,
           type: 'SELL' as const,
-          amount: 500.00,
+          amount: '500.00',
           currency: 'EUR'
         },
         {
           userId: adminUser.id,
           type: 'BUY' as const,
-          amount: 0.5,
+          amount: '0.5',
           currency: 'BTC'
         }
       ];
