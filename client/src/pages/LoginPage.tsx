@@ -50,15 +50,22 @@ export default function LoginPage() {
       // Call authentication API endpoint
       // Use absolute URL to ensure it works from any domain
       const apiUrl = window.location.origin + '/api/auth/login';
+      const requestBody = { email, password };
+      
+      console.log('Login attempt:', { apiUrl, email: email, passwordLength: password.length });
+      
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log('Login response:', { status: response.status, statusText: response.statusText });
+
       const data = await response.json();
+      console.log('Login response data:', data);
 
       if (!response.ok) {
         // Handle different HTTP error status codes
