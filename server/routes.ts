@@ -75,12 +75,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
    */
   app.post('/api/auth/login', asyncHandler(async (req: Request, res: Response) => {
     try {
+      console.log('🔐 Login request received:', {
+        body: req.body,
+        contentType: req.headers['content-type'],
+        method: req.method,
+        url: req.url
+      });
+      
       // Validate request body using Zod schema
       const { email, password } = loginSchema.parse(req.body);
       
       // Find user by email address
       const user = await storage.getUserByEmail(email);
+      console.log('👤 User found:', !!user);
+      
       if (!user) {
+        console.log('❌ User not found for email:', email);
         return res.status(401).json({ message: 'Invalid email or password' });
       }
 
@@ -88,7 +98,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // bcrypt.compare safely compares plaintext password with hashed password
       // This prevents timing attacks and ensures secure password verification
       const isValidPassword = await bcrypt.compare(password, user.password);
+      console.log('🔐 Password valid:', isValidPassword);
+      
       if (!isValidPassword) {
+        console.log('❌ Invalid password for user:', email);
         return res.status(401).json({ message: 'Invalid email or password' });
       }
 
@@ -105,6 +118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
 
       // Return successful authentication response
+      console.log('✅ Login successful for user:', email);
       res.json({
         token,
         user: {
@@ -115,6 +129,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
     } catch (error) {
+      console.error('❌ Login error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
           message: 'Validation error', 
