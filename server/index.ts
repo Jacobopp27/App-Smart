@@ -99,15 +99,19 @@ app.use('/api', (req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    console.log(`🚀 Server ready at http://0.0.0.0:${port}`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
     
     // Initialize database AFTER server is listening (completely non-blocking)
-    if (process.env.NODE_ENV !== 'development') {
+    if (process.env.NODE_ENV === 'production') {
       // Start database initialization in background after server is ready
       import('./initdb').then(({ initializeDatabase }) => {
         initializeDatabase().catch((error) => {
           console.error('Database initialization failed:', error);
           // Server continues to run, database operations will handle connection issues
         });
+      }).catch(() => {
+        console.log('Database initialization module not available in production build');
       });
     }
   });
