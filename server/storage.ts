@@ -113,11 +113,11 @@ export class DatabaseStorage implements IStorage {
       conditions.push(eq(operations.userId, userId));
     }
     
-    if (type) {
+    if (type && type !== "all-types") {
       conditions.push(eq(operations.type, type as "BUY" | "SELL"));
     }
     
-    if (currency) {
+    if (currency && currency !== "all-currencies") {
       conditions.push(eq(operations.currency, currency));
     }
     

@@ -29,8 +29,8 @@ export default function Dashboard() {
 
   // Filters for operations table
   const [filters, setFilters] = useState({
-    type: "",
-    currency: "",
+    type: "all-types",
+    currency: "all-currencies", 
     search: "",
     page: 1,
     limit: 10,
@@ -371,7 +371,7 @@ export default function Dashboard() {
                         <SelectValue placeholder="All Types" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Types</SelectItem>
+                        <SelectItem value="all-types">All Types</SelectItem>
                         <SelectItem value="BUY">Buy Only</SelectItem>
                         <SelectItem value="SELL">Sell Only</SelectItem>
                       </SelectContent>
@@ -387,7 +387,7 @@ export default function Dashboard() {
                         <SelectValue placeholder="All Currencies" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Currencies</SelectItem>
+                        <SelectItem value="all-currencies">All Currencies</SelectItem>
                         <SelectItem value="USD">USD</SelectItem>
                         <SelectItem value="EUR">EUR</SelectItem>
                         <SelectItem value="BTC">BTC</SelectItem>
