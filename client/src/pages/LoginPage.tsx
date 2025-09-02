@@ -48,7 +48,9 @@ export default function LoginPage() {
       }
 
       // Call authentication API endpoint
-      const response = await fetch('/api/auth/login', {
+      // Use absolute URL to ensure it works from any domain
+      const apiUrl = window.location.origin + '/api/auth/login';
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

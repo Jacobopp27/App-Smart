@@ -33,9 +33,12 @@ export async function apiRequest(method: string, url: string, data?: any): Promi
     headers['Content-Type'] = 'application/json';
   }
 
+  // Convert relative URLs to absolute URLs to ensure compatibility across domains
+  const fullUrl = url.startsWith('/') ? window.location.origin + url : url;
+
   try {
     // Make the HTTP request with configured headers and body
-    const response = await fetch(url, {
+    const response = await fetch(fullUrl, {
       method,
       headers,
       body: data ? JSON.stringify(data) : undefined,
