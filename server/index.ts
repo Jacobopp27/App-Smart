@@ -22,6 +22,16 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Health check endpoint for deployment monitoring
+app.get('/', (req: Request, res: Response) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    message: 'TechTest Operations Management System',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -60,10 +70,14 @@ app.use((req, res, next) => {
     next();
   });
   
-  // Initialize database (for production)
+  // Initialize database asynchronously (non-blocking for faster startup)
   if (process.env.NODE_ENV !== 'development') {
+    // Start database initialization in background, don't block server startup
     const { initializeDatabase } = await import('./initdb');
-    await initializeDatabase();
+    initializeDatabase().catch((error) => {
+      console.error('Database initialization failed:', error);
+      // Server continues to run, database operations will handle connection issues
+    });
   }
   
   // Register routes

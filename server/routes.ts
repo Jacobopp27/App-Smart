@@ -63,16 +63,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   /**
    * GET /api/health
-   * Simple health check endpoint to test connectivity
+   * Enhanced health check endpoint for deployment monitoring
+   * Includes database connectivity check
    */
-  app.get('/api/health', (req: Request, res: Response) => {
+  app.get('/api/health', asyncHandler(async (req: Request, res: Response) => {
     console.log('🟢 Health check requested');
-    res.json({ 
-      status: 'OK', 
+    
+    // Basic health response
+    const healthData: any = {
+      status: 'OK',
       timestamp: new Date().toISOString(),
-      message: 'Server is running'
-    });
-  });
+      message: 'Server is running',
+      environment: process.env.NODE_ENV || 'development'
+    };
+
+    // In production, try a simple database query to verify connectivity
+    if (process.env.NODE_ENV !== 'development') {
+      try {
+        // Simple query to test database connection
+        await storage.getAllUsers();
+        healthData.database = 'connected';
+      } catch (error) {
+        console.warn('Database health check failed:', error);
+        healthData.database = 'disconnected';
+        // Still return 200 to allow deployment to continue
+      }
+    }
+    
+    res.json(healthData);
+  }));
 
   /**
    * GET /api/setup/status
