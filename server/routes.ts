@@ -75,38 +75,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
    */
   app.post('/api/auth/login', asyncHandler(async (req: Request, res: Response) => {
     try {
-      // Log incoming request details for debugging
-      console.log('🔐 Login attempt:', {
-        body: req.body,
-        email: req.body?.email,
-        passwordLength: req.body?.password?.length,
-        headers: req.headers['content-type']
-      });
-      
       // Validate request body using Zod schema
       const { email, password } = loginSchema.parse(req.body);
       
-      console.log('✅ Request validation passed');
-      
       // Find user by email address
       const user = await storage.getUserByEmail(email);
-      console.log('👤 User lookup:', user ? `Found user ${user.id}` : 'User not found');
-      
       if (!user) {
-        console.log('❌ Login failed: User not found');
-        return res.status(401).json({ message: 'Invalid credentials' });
+        return res.status(401).json({ message: 'Invalid email or password' });
       }
 
       // Verify password using bcrypt
       // bcrypt.compare safely compares plaintext password with hashed password
       // This prevents timing attacks and ensures secure password verification
-      console.log('🔍 Verifying password...');
       const isValidPassword = await bcrypt.compare(password, user.password);
-      console.log('🔐 Password verification:', isValidPassword ? 'SUCCESS' : 'FAILED');
-      
       if (!isValidPassword) {
-        console.log('❌ Login failed: Invalid password');
-        return res.status(401).json({ message: 'Invalid credentials' });
+        return res.status(401).json({ message: 'Invalid email or password' });
       }
 
       // Generate JWT token with user information
