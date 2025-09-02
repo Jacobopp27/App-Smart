@@ -75,6 +75,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   /**
+   * GET /api/setup/status
+   * Check if setup is needed
+   */
+  app.get('/api/setup/status', asyncHandler(async (req: Request, res: Response) => {
+    const existingUsers = await storage.getAllUsers();
+    res.json({ 
+      needsSetup: existingUsers.length === 0,
+      userCount: existingUsers.length,
+      environment: process.env.NODE_ENV || 'development'
+    });
+  }));
+
+  /**
    * POST /api/setup/admin
    * Creates the first admin user for initial setup
    */
@@ -86,10 +99,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Email and password are required' });
       }
 
-      // Check if any users exist
-      const existingUsers = await storage.getAllUsers();
-      if (existingUsers.length > 0) {
-        return res.status(400).json({ message: 'Setup already completed' });
+      // Check if admin already exists
+      const existingAdmin = await storage.getUserByEmail(email);
+      if (existingAdmin) {
+        return res.status(400).json({ message: 'User with this email already exists' });
       }
 
       // Create admin user
