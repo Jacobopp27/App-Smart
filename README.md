@@ -1,7 +1,7 @@
 # TechTest - Sistema de Gestión de Operaciones Financieras
 
 Un sistema completo de monorepo para gestionar operaciones financieras con autenticación JWT. Construido con backend Node.js/Express, frontend React, y base de datos PostgreSQL.
-
+Pruebalo en la siguiente URL: https://app-smart-jacobopp7.replit.app/login
 ## 🚀 Inicio Rápido
 
 Sigue estos pasos para ejecutar la aplicación localmente:
