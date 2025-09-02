@@ -1,0 +1,195 @@
+# Docker Compose configuration for local PostgreSQL development
+# This file provides a local PostgreSQL instance for development purposes
+# Use this if you don't have PostgreSQL installed locally
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  # Provides a local PostgreSQL instance with persistent data storage
+  postgres:
+    image: postgres:15-alpine
+    container_name: techtest-postgres
+    restart: unless-stopped
+    
+    # Environment variables for PostgreSQL configuration
+    # These match the default values in .env.example
+    environment:
+      # Database name to create automatically
+      POSTGRES_DB: techtest
+      # PostgreSQL superuser name
+      POSTGRES_USER: postgres
+      # PostgreSQL superuser password
+      POSTGRES_PASSWORD: password
+      # Timezone for the database
+      TZ: UTC
+    
+    # Port mapping: host:container
+    # Maps local port 5432 to container port 5432
+    ports:
+      - "5432:5432"
+    
+    # Volume mounting for data persistence
+    # Data will persist even when container is stopped/removed
+    volumes:
+      # Persistent data storage
+      - postgres_data:/var/lib/postgresql/data
+      # Custom initialization scripts (optional)
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    
+    # Health check to ensure database is ready
+    # Useful for dependent services or application startup
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d techtest"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    
+    # Resource limits to prevent excessive resource usage
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  # pgAdmin - PostgreSQL Administration Tool (Optional)
+  # Provides a web-based interface for database management
+  # Comment out if not needed to save resources
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: techtest-pgadmin
+    restart: unless-stopped
+    
+    # pgAdmin configuration
+    environment:
+      # Default admin email for login
+      PGADMIN_DEFAULT_EMAIL: admin@techtest.com
+      # Default admin password for login
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      # Disable password saving prompt
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      # Disable master password requirement
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    
+    # Port mapping for web interface
+    # Access pgAdmin at http://localhost:8080
+    ports:
+      - "8080:80"
+    
+    # Volume for pgAdmin configuration persistence
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    
+    # Depends on PostgreSQL service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+  # Redis Cache Service (Optional)
+  # Can be used for session storage or caching in future enhancements
+  # Comment out if not needed
+  redis:
+    image: redis:7-alpine
+    container_name: techtest-redis
+    restart: unless-stopped
+    
+    # Redis configuration
+    command: redis-server --appendonly yes --requirepass redispassword
+    
+    # Port mapping
+    ports:
+      - "6379:6379"
+    
+    # Volume for Redis data persistence
+    volumes:
+      - redis_data:/data
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.1'
+
+# Named volumes for data persistence
+# These volumes will persist data even when containers are removed
+volumes:
+  # PostgreSQL data volume
+  # Stores all database data, tables, indexes, etc.
+  postgres_data:
+    driver: local
+    
+  # pgAdmin configuration volume
+  # Stores pgAdmin settings and server configurations
+  pgadmin_data:
+    driver: local
+    
+  # Redis data volume
+  # Stores Redis cache and persistent data
+  redis_data:
+    driver: local
+
+# Custom network (optional)
+# Allows services to communicate using service names
+networks:
+  default:
+    name: techtest-network
+    driver: bridge
+
+# Usage Instructions:
+# 
+# 1. Start all services:
+#    docker-compose up -d
+# 
+# 2. Start only PostgreSQL:
+#    docker-compose up -d postgres
+# 
+# 3. View logs:
+#    docker-compose logs -f postgres
+# 
+# 4. Stop all services:
+#    docker-compose down
+# 
+# 5. Stop and remove all data:
+#    docker-compose down -v
+# 
+# 6. Update .env file with connection details:
+#    DATABASE_URL=postgresql://postgres:password@localhost:5432/techtest
+# 
+# 7. Access pgAdmin (if enabled):
+#    URL: http://localhost:8080
+#    Email: admin@techtest.com
+#    Password: admin123
+# 
+# 8. Connect to PostgreSQL from pgAdmin:
+#    Host: postgres (or localhost if connecting from host)
+#    Port: 5432
+#    Database: techtest
+#    Username: postgres
+#    Password: password
+#
+# Production Notes:
+# - Change default passwords in production
+# - Use environment variables for secrets
+# - Configure proper backup strategies
+# - Set up monitoring and alerting
+# - Use SSL/TLS for connections
+# - Implement proper access controls
