@@ -22,13 +22,11 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Health check endpoint for deployment monitoring
+// Immediate health check endpoint for deployment monitoring - no async operations
 app.get('/', (req: Request, res: Response) => {
   res.status(200).json({ 
     status: 'OK', 
-    message: 'TechTest Operations Management System',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    message: 'TechTest Operations Management System'
   });
 });
 
@@ -62,25 +60,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// Register API routes with explicit middleware to bypass Vite
+app.use('/api', (req, res, next) => {
+  // Force API routes to be handled by Express, not Vite
+  res.setHeader('Content-Type', 'application/json');
+  next();
+});
+
 (async () => {
-  // Register API routes with explicit middleware to bypass Vite
-  app.use('/api', (req, res, next) => {
-    // Force API routes to be handled by Express, not Vite
-    res.setHeader('Content-Type', 'application/json');
-    next();
-  });
-  
-  // Initialize database asynchronously (non-blocking for faster startup)
-  if (process.env.NODE_ENV !== 'development') {
-    // Start database initialization in background, don't block server startup
-    const { initializeDatabase } = await import('./initdb');
-    initializeDatabase().catch((error) => {
-      console.error('Database initialization failed:', error);
-      // Server continues to run, database operations will handle connection issues
-    });
-  }
-  
-  // Register routes
+  // Register routes synchronously to avoid async delays
   const server = await registerRoutes(app);
 
   // Error handler for API routes
@@ -111,5 +99,16 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    
+    // Initialize database AFTER server is listening (completely non-blocking)
+    if (process.env.NODE_ENV !== 'development') {
+      // Start database initialization in background after server is ready
+      import('./initdb').then(({ initializeDatabase }) => {
+        initializeDatabase().catch((error) => {
+          console.error('Database initialization failed:', error);
+          // Server continues to run, database operations will handle connection issues
+        });
+      });
+    }
   });
 })();
